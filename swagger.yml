@@ -1,0 +1,251 @@
+swagger: "2.0"
+info:
+  description: Nicolas Woitchik - Backend Developer
+  version: 1.0.0
+  title: MyTapp
+  contact:
+    email: nicolas@woitchik.com.br
+basePath: 'http://127.0.0.1:3000'
+tags:
+  - name: users
+    description: CRUD
+  - name: authentication
+    description: ''
+schemes:
+  - http
+paths:
+  /auth/login: 
+    post:
+      post:
+      tags:
+        - authentication
+      summary: Login User
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+        content:
+         application/json:
+           schema:
+             type: object
+             properties: 
+               email:
+                 type: string
+                 example: 'john.doe@example.com'
+               password:
+                 type: string
+                 example: 'S3cur!tyPassw0rd'
+  /users:
+    get:
+     tags:
+       - users
+     summary: Users list
+     description: ''
+     consumes:
+       - application/json
+     produces:
+       - application/json
+    post:
+      tags:
+        - users
+      summary: Create User
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+        content:
+         application/json:
+           schema:
+             type: object
+             properties: 
+               name:
+                 type: string
+                 example: 'John Doe'
+               email:
+                 type: string
+                 example: 'john.doe@example.com'
+               password:
+                 type: string
+                 example: 'S3cur!tyPassw0rd'
+      responses:
+        '201':
+          description: User Created
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: User Created
+        '400':
+          description: Bad request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error
+        '401':
+          description: Invalid Token
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Invalid Token
+        '404':
+          description: Invalid input
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error
+      security:
+        - bearerAuth: []
+  /users/{user_id}:
+    get:
+     tags:
+       - users
+     summary: Retrieve data from specific user
+     description: ''
+     consumes:
+       - application/json
+     produces:
+       - application/json
+     parameters:
+        - in: path
+          name: user_id
+          type: string
+          description: User identification
+          required: true
+    put: 
+      tags:
+        - users
+      summary: Update User
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: user_id
+          type: string
+          description: User identification
+          required: true
+      requestBody:
+       content:
+         application/json:
+           schema:
+             type: object
+             properties: 
+               name:
+                 type: string
+                 example: 'John Doe'
+               email:
+                 type: string
+                 example: 'john.doe@example.com'
+      responses:
+        '200':
+          description: User Updated
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: User Updated
+        '400':
+          description: Bad request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error
+        '401':
+          description: Invalid Token
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Invalid Token
+        '404':
+          description: Invalid input
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - users
+      summary: Delete User
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: User Deleted
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: User Deleted
+        '400':
+          description: Bad request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error
+        '401':
+          description: Invalid Token
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Invalid Token
+        '404':
+          description: Invalid input
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error
+      security:
+        - bearerAuth: []
+  /beers:
+    get:
+     tags:
+       - beers
+     summary: Beers list
+     description: ''
+     consumes:
+       - application/json
+     produces:
+       - application/json
+     security:
+        - bearerAuth: []
+      
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
