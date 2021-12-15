@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>MyTapp</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+</head>
+
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+        <v-container>
+
+          <div class="login" v-if="user.token === null">
+            <v-card elevation="2" outlined shaped class="mx-auto" max-width="344" v-if="!isRegister">
+              <v-card-text>
+                <v-form>
+                  <h3>Login</h3>
+
+                  <v-text-field v-model="form.email" label="E-mail" required></v-text-field>
+                  <v-text-field v-model="form.password" type="password" label="Password" required></v-text-field>
+
+                  <v-btn color="success" class="mr-4" @click="login">
+                    Login
+                  </v-btn>
+
+                  <v-btn @click="() => isRegister = !isRegister">
+                    Signup
+                  </v-btn>
+                </v-form>
+              </v-card-text>
+            </v-card>
+            <v-card elevation="2" outlined shaped class="mx-auto" max-width="344" v-else>
+              <v-card-text>
+                <v-form>
+                  <h3>Signup</h3>
+                  <v-text-field v-model="form.name" label="Name" required></v-text-field>
+
+                  <v-text-field v-model="form.email" label="E-mail" required></v-text-field>
+                  <v-text-field v-model="form.password" label="Password" required></v-text-field>
+
+                  <v-btn color="success" class="mr-4" @click="login">
+                    Register
+                  </v-btn>
+
+                  <v-btn @click="() => isRegister = !isRegister">
+                    Signin
+                  </v-btn>
+                </v-form>
+              </v-card-text>
+            </v-card>
+          </div>
+          <div class="beers" v-else>
+            <v-btn color="error" @click="logout">
+              Logout
+            </v-btn>
+
+            <div>
+              <v-data-table :headers="headers" :items="beers" hide-default-footer class="elevation-1"></v-data-table>
+              <div class="text-center pt-2">
+                <v-btn color='primary' :disabled="page < 2" @click="previousPage">Previous</v-btn>
+                Page: <b>{{page}}</b>
+                <v-btn color='primary' :disabled="page > 100" @click="nextPage">Next</v-btn>
+
+              </div>
+            </div>
+          </div>
+          <v-snackbar center shaped top v-model="alert.open">
+            {{ alert.text }}
+          </v-snackbar>
+        </v-container>
+      </v-main>
+    </v-app>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <script>
+    var app = new Vue({
+      el: '#app',
+
+      vuetify: new Vuetify(),
+      data: {
+        alert: {
+          open: false,
+          text: ''
+        },
+        page: 1,
+        pageCount: 100,
+        itemsPerPage: 10,
+        valid: true,
+        headers: [
+          { text: 'ID', value: 'id' },
+          { text: 'Name', value: 'name' },
+          { text: 'ABV', value: 'abv' },
+          { text: 'IBU', value: 'ibu' },
+          { text: 'Target FG', value: 'target_fg' },
+          { text: 'Target OG', value: 'target_og' },
+          { text: 'EBC', value: 'ebc' },
+          { text: 'SRM', value: 'srm' },
+          { text: 'PH', value: 'ph' },
+          { text: 'Description', value: 'description' },
+        ],
+        isRegister: false,
+        user: {
+          "id": "f97c3435-f1c3-45e3-a7f3-3b1e5987d2a3",
+          "name": "Nicolas Woitchik",
+          "email": "nicolas@woitchik.com.br",
+          "created_at": "2021-12-15T01:58:55.576Z",
+          "updated_at": "2021-12-15T01:58:55.576Z",
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2Mzk1MzYxOTksImV4cCI6MTYzOTYyMjU5OSwic3ViIjoiZjk3YzM0MzUtZjFjMy00NWUzLWE3ZjMtM2IxZTU5ODdkMmEzIn0.1vCAk9fU8cx0wQ9NQzQjl3tRnOlPl-hHwklIvWOWbsE"
+        },
+        form: {
+          email: '',
+          name: '',
+          pasword: '',
+        },
+        beers: [],
+        page: 1
+      },
+      mounted()
+      {
+        if (this.user.token !== null) {
+          this.getBeers()
+        }
+      },
+      methods: {
+        async previousPage()
+        {
+          if (this.page > 1) {
+            await this.getBeers()
+            this.page -= 1;
+          }
+        },
+        async nextPage()
+        {
+          await this.getBeers()
+          this.page += 1;
+        },
+        tooltip(text)
+        {
+          this.alert.open = true;
+          this.alert.text = text;
+        },
+        logout()
+        {
+          this.form = {
+            email: '',
+            name: '',
+            pasword: '',
+          }
+          this.user = {
+            email: '',
+            name: '',
+            pasword: '',
+            token: null
+          }
+        },
+        async login()
+        {
+          const { data } = await axios.post('/auth/login', {
+            email: this.form.email,
+            password: this.form.password,
+          }).catch(e =>
+          {
+            if (e.response && e.response.data && e.response.data.message) {
+              return this.tooltip(e.response.data.message)
+            }
+            return this.tooltip(e.message);
+          });
+
+          this.user.token = data.token;
+          this.user.name = data.name;
+          this.user.email = data.email;
+          this.getBeers()
+        },
+        async register()
+        {
+          await axios.post('/users', {
+            name: this.form.name,
+            email: this.form.email,
+            password: this.form.password,
+          }).catch(e =>
+          {
+            if (e.response && e.response.data && e.response.data.message) {
+              return this.tooltip(e.response.data.message)
+            }
+            return this.tooltip(e.message);
+          });
+        },
+        async getBeers()
+        {
+          const { data } = await axios({
+            headers: {
+              'Authorization': `Bearer ${this.user.token}`
+            },
+            url: '/beers',
+            params: {
+              page: this.page
+            },
+            method: 'get'
+          }).catch(e =>
+          {
+            if (e.response && e.response.data && e.response.data.message) {
+              return this.tooltip(e.response.data.message)
+            }
+            return this.tooltip(e.message);
+          });
+          this.beers = data;
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
